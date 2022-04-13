@@ -1,0 +1,36 @@
+version: "3.9"
+services:
+  web:
+    build: .
+    ports:
+      - 6969:6969
+    environment:
+      PORT: 6969
+      MNT_DIR: "/app/web/data"
+      DBUSER: "postgres"
+      DBPASS: "postgres"
+      DBHOST: "db"
+      DBNAME: "postgres"
+      DBPORT: 5432
+    volumes:
+      - ./data:/app/web/data
+    networks:
+      - onlybans
+  db:
+    image: postgres:14.2-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - 5432:5432
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      - onlybans
+volumes:
+  db:
+    driver: local
+networks:
+  onlybans:
+    driver: bridge
