@@ -15,7 +15,7 @@ RUN set -e; \
     apt-get install -y gcsfuse \
     && apt-get clean \
 	pip install --upgrade pip && \
-	pip install Quart gunicorn uvicorn typing gevent && \
+	pip install Quart gunicorn uvicorn typing gevent asyncpg && \
 	mkdir -p ${APP_DIR}/web && \
 	rm -rf /var/cache/apk/*
 
