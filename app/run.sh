@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-# Create mount directory for service.
-mkdir -p $MNT_DIR
-
-echo "Mounting GCS Fuse."
-gcsfuse --debug_gcs --debug_fuse $BUCKET $MNT_DIR 
-echo "Mounting completed."
+# If bucket is set, we are using GCS fuse for data storage
+if ! [ -z "$BUCKET" ]; then
+    echo "Got bucket: $BUCKET"
+    echo "Mounting GCS Fuse."
+    mkdir -p $MNT_DIR
+    gcsfuse --debug_gcs --debug_fuse $BUCKET $MNT_DIR
+    echo "Mounting completed."
+else
+    echo "Data dir: $MNT_DIR"
+fi
 
 # Run the web service on container startup. Here we use the gunicorn
 # webserver, with one worker process and 8 threads.
