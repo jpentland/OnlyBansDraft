@@ -1,6 +1,5 @@
 from quart import Quart, render_template, url_for, redirect, app, websocket
 import asyncio
-import asyncpg
 import random
 from functools import wraps
 import os
@@ -8,6 +7,8 @@ import re
 import tempfile
 import json
 from typing import Union
+
+import crud
 
 # Get environment variables
 dbuser = os.environ.get('DBUSER', 'postgres')
@@ -48,26 +49,22 @@ def load_icon_lists():
 
 @app.before_serving
 async def init_server():
-    global pool
-
-    pool = await asyncpg.create_pool(
-        user=dbuser,
-        password=dbpass,
-        host=dbhost,
-        port=dbport,
-        database=dbname,
-    )
+    global db
+    db = await crud.DB.connect(dbuser, dbpass, dbhost, dbport, dbname)
 
     load_icon_lists()
 
 @app.after_serving
 async def close_server():
-    global pool
-    await pool.close()
+    await db.close()
 
 @app.route("/")
 async def index():
     return await render_template("index.html")
+
+@app.route("/check_db")
+async def check_db():
+    return await db.check()
 
 
 @app.route("/new/<string:draft_template>")
