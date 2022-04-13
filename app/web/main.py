@@ -8,62 +8,6 @@ import tempfile
 import json
 from typing import Union
 
-maps_icon_list = {
-    'acropolis' : 'MapsIcons/rm_acropolis.png',
-    'african clearing' : 'MapsIcons/rm_african_clearing.png',
-    'arabia' : 'MapsIcons/rm_arabia.png',
-    'arena' : 'MapsIcons/rm_arena.png',
-    'fortress' : 'MapsIcons/rm_fortress.png',
-    'golden pit' : 'MapsIcons/rm_golden-pit.png',
-    'gold rush' : 'MapsIcons/rm_gold-rush.png',
-    'hideout' : 'MapsIcons/rm_hideout.png',
-    'land madness' : 'MapsIcons/rm_land_madness.png',
-    'megarandom' : 'MapsIcons/rm_megarandom.png',
-    'nomad' : 'MapsIcons/rm_nomad.png',
-    'runestones' : 'MapsIcons/rm_runestones.png',
-    'socotra' : 'MapsIcons/rm_socotra.png',
-}
-civs_icon_list = {
-    'Aztecs' : 'CivIcons/aztecs.png',
-    'Berbers' : 'CivIcons/berbers.png',
-    'Bohemians' : 'CivIcons/bohemians.png',
-    'Britons' : 'CivIcons/britons.png',
-    'Bulgarians' : 'CivIcons/bulgarians.png',
-    'Burgundians' : 'CivIcons/burgundians.png',
-    'Burmese' : 'CivIcons/burmese.png',
-    'Byzantines' : 'CivIcons/byzantines.png',
-    'Celts' : 'CivIcons/celts.png',
-    'Chinese' : 'CivIcons/chinese.png',
-    'Cumans' : 'CivIcons/cumans.png',
-    'Ethiopians' : 'CivIcons/ethiopians.png',
-    'Franks' : 'CivIcons/franks.png',
-    'Goths' : 'CivIcons/goths.png',
-    'Huns' : 'CivIcons/huns.png',
-    'Incas' : 'CivIcons/incas.png',
-    'Indians' : 'CivIcons/indians.png',
-    'Italians' : 'CivIcons/italians.png',
-    'Japanese' : 'CivIcons/japanese.png',
-    'Khmer' : 'CivIcons/khmer.png',
-    'Koreans' : 'CivIcons/koreans.png',
-    'Lithuanians' : 'CivIcons/lithuanians.png',
-    'Magyars' : 'CivIcons/magyars.png',
-    'Malay' : 'CivIcons/malay.png',
-    'Malians' : 'CivIcons/malians.png',
-    'Mayans' : 'CivIcons/mayans.png',
-    'Mongols' : 'CivIcons/mongols.png',
-    'Persians' : 'CivIcons/persians.png',
-    'Poles' : 'CivIcons/poles.png',
-    'Portuguese' : 'CivIcons/portuguese.png',
-    'Saracens' : 'CivIcons/saracens.png',
-    'Sicilians' : 'CivIcons/sicilians.png',
-    'Slavs' : 'CivIcons/slavs.png',
-    'Spanish' : 'CivIcons/spanish.png',
-    'Tatars' : 'CivIcons/tatars.png',
-    'Teutons' : 'CivIcons/teutons.png',
-    'Turks' : 'CivIcons/turks.png',
-    'Vietnamese' : 'CivIcons/vietnamese.png',
-    'Vikings' : 'CivIcons/vikings.png',
-}
 
 app = Quart(__name__)
 
@@ -87,6 +31,16 @@ def update_draft_file(draft_id: str, draft_json: dict) -> dict:
     json.dump(draft_json, open(data_path, 'w'))
     return draft_json
 
+def load_icon_lists():
+    # Load civ and map icon lists from icons.json
+    global civs_icon_list, maps_icon_list
+    lists = json.load(open(os.path.join(app.root_path, 'icons.json'), 'r'))
+    maps_icon_list = lists['maps_icon_list']
+    civs_icon_list = lists['civs_icon_list']
+
+@app.before_serving
+async def init_server():
+    load_icon_lists()
 
 @app.route("/")
 async def index():
