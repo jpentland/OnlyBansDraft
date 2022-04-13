@@ -1,5 +1,6 @@
 from quart import Quart, render_template, url_for, redirect, app, websocket
 import asyncio
+import asyncpg
 import random
 from functools import wraps
 import os
@@ -8,7 +9,14 @@ import tempfile
 import json
 from typing import Union
 
+# Get environment variables
+dbuser = os.environ.get('DBUSER', 'postgres')
+dbpass = os.environ.get('DBPASS', 'postgres')
+dbhost = os.environ.get('DBHOST', 'localhost')
+dbport = os.environ.get('DBPORT', '5432')
+dbname = os.environ.get('DBNAME', 'onlybans')
 
+# Start quart application
 app = Quart(__name__)
 
 
@@ -40,7 +48,22 @@ def load_icon_lists():
 
 @app.before_serving
 async def init_server():
+    global pool
+
+    pool = await asyncpg.create_pool(
+        user=dbuser,
+        password=dbpass,
+        host=dbhost,
+        port=dbport,
+        database=dbname,
+    )
+
     load_icon_lists()
+
+@app.after_serving
+async def close_server():
+    global pool
+    await pool.close()
 
 @app.route("/")
 async def index():
